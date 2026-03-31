@@ -360,11 +360,11 @@
 </main>
 
 <footer>
-  <p>Robertson Library, University of Prince Edward Island &nbsp;·&nbsp; <a href="mailto:ill@upei.ca">ill@upei.ca</a></p>
+  <p>Robertson Library, University of Prince Edward Island &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#6c0500002c191c0905420f0d"><span class="__cf_email__" data-cfemail="cfa6a3a38fbabfaaa6e1acae">[email&#160;protected]</span></a></p>
   <p style="margin-top:6px;">Need to supply an item to another library? Visit the <a href="https://smerz-wood.github.io/upei-ILL-demo-forms/lending-request.html">Lending Request</a> form.</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─────────────────────────────────────────────────────────────
 //  SECURITY: sanitise any string before using it in the DOM
 //  or sending it to the webhook. Strips all HTML tags, trims
@@ -546,18 +546,19 @@ document.getElementById('ill-form').addEventListener('submit', async function (e
     submittedAt:   new Date().toISOString(),
   };
 
-  const WEBHOOK_URL = 'https://default781ea5f47d4f46959718668283cd5b.be.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/3d717c42a4fd4b00a46221131f925e00/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LVi_0dAsQXHNZjpa6b_fin1F1Jex_dbJQ4xzwptWzZQ';
-
-
+  const WEBHOOK_URL = 'https://default781ea5f47d4f46959718668283cd5b.be.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3d717c42a4fd4b00a46221131f925e00/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LVi_0dAsQXHNZjpa6b_fin1F1Jex_dbJQ4xzwptWzZQ';
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   btn.textContent = 'Submitting…';
 
   try {
+    // Send as text/plain to avoid a CORS preflight request.
+    // Power Automate's HTTP trigger accepts this and you can parse
+    // the JSON body in your flow using: json(triggerBody())
     const res = await fetch(WEBHOOK_URL, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify(payload),
     });
     if (res.ok) {
@@ -567,14 +568,3 @@ document.getElementById('ill-form').addEventListener('submit', async function (e
     } else {
       alert('Submission failed (HTTP ' + res.status + '). Please check the Webhook URL or contact ILL staff.');
     }
-  } catch (err) {
-    console.error(err);
-    alert('Network error. Please check your connection and try again.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Submit Request';
-  }
-});
-</script>
-</body>
-</html>
