@@ -496,9 +496,9 @@ document.getElementById('lending-form').addEventListener('submit', async functio
     submittedAt: new Date().toISOString(),
   };
 
-  const WEBHOOK_URL = '';
+  const WEBHOOK_URL = 'https://default781ea5f47d4f46959718668283cd5b.be.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/859ddb93b98f4a57b8a8309cebf0b7ce/triggers/manual/paths/invoke?api-version=1';
 
-  if (WEBHOOK_URL === '') {
+  if (WEBHOOK_URL === 'https://default781ea5f47d4f46959718668283cd5b.be.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/859ddb93b98f4a57b8a8309cebf0b7ce/triggers/manual/paths/invoke?api-version=1') {
     console.log('DEV — payload that would be sent:', payload);
     document.getElementById('success-msg').style.display = 'block';
     this.reset();
