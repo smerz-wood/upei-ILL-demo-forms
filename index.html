@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interlibrary Loan Request — UPEI Robertson Library</title>
+  <title>Interlibrary Loan Request | UPEI Robertson Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
@@ -174,7 +174,7 @@
 
     .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 
-    /* Inline validation error banner — replaces alert() */
+    /* Inline validation error banner | replaces alert() */
     #error-banner {
       display: none;
       background: #FDF0F0;
@@ -231,7 +231,7 @@
 <body>
 
 <nav class="site-nav">
-  <a class="brand" href="index.html">Robertson Library — ILL Services</a>
+  <a class="brand" href="index.html">Robertson Library | ILL Services</a>
   <ul class="nav-links">
     <li><a href="index.html" class="active">Borrowing Request</a></li>
     <li><a href="https://smerz-wood.github.io/upei-ILL-demo-forms/lending-request.html">Lending Request</a></li>
@@ -240,7 +240,7 @@
 
 <header class="page-header">
   <h1>Interlibrary Loan &#8212; Borrowing Request</h1>
-  <p>Request an item not held by Robertson Library from another institution.</p>
+  <p>As a UPEI Patron, Request an item not held by Robertson Library from another institution.</p>
   <div class="rule"></div>
 </header>
 
@@ -301,7 +301,7 @@
       </div>
 
       <div class="form-group">
-        <label for="patron_barcode">Library Barcode</label>
+        <label for="patron_barcode">Username</label>
         <input type="text" id="patron_barcode" maxlength="30" placeholder="On the back of your library card">
       </div>
 
@@ -324,7 +324,7 @@
 </main>
 
 <footer>
-  <p style="margin-top:6px;">Need to supply an item to another library? Visit the
+  <p style="margin-top:6px;">Are you an institution looking to request our holdings? Visit the
     <a href="https://smerz-wood.github.io/upei-ILL-demo-forms/lending-request.html">Lending Request</a> form.</p>
 </footer>
 
@@ -417,7 +417,7 @@
 
     var type = detectType(raw);
     if (!type) {
-      setStatus('Not recognised — a DOI starts with "10.", an ISBN has 10 or 13 digits, an ISSN is formatted ####-####.', 'err');
+      setStatus('Not recognised | a DOI starts with "10.", an ISBN has 10 or 13 digits, an ISSN is formatted ####-####.', 'err');
       return;
     }
 
