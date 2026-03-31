@@ -1,138 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>UPEI - Interlibrary Lending Request</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f4f7; padding: 20px; }
-        .form-container { background: #fff; padding: 30px; border-radius: 8px; max-width: 650px; margin: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="text"], input[type="email"], input[type="number"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .help-text { font-size: 0.85em; color: #666; margin-top: 3px;}
-        button { background-color: #006b3f; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
-        button:disabled { background-color: #999; }
-        #success-msg { display: none; background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-top: 20px; text-align: center; font-weight: bold;}
-        h2 { color: #006b3f; border-bottom: 2px solid #006b3f; padding-bottom: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interlibrary Lending Request — UPEI Robertson Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #1F3864;
+      --gold:   #C9973A;
+      --cream:  #F9F6F0;
+      --white:  #FFFFFF;
+      --border: #D8D0C4;
+      --muted:  #6B6258;
+      --error:  #8B2020;
+      --ok:     #1A5C34;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 400;
+      background: var(--cream);
+      color: #2A2118;
+      min-height: 100vh;
+    }
+
+    /* ── Top nav bar ── */
+    .site-nav {
+      background: var(--navy);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      border-bottom: 3px solid var(--gold);
+    }
+    .site-nav .brand {
+      font-family: 'Libre Baskerville', serif;
+      color: var(--white);
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+    }
+    .site-nav .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .site-nav .nav-links a {
+      color: rgba(255,255,255,0.78);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 0.18s;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+    }
+    .site-nav .nav-links a:hover,
+    .site-nav .nav-links a.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 32px 28px;
+      text-align: center;
+    }
+    .page-header h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.9rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .page-header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.97rem;
+      font-weight: 300;
+    }
+    .page-header .rule {
+      width: 48px;
+      height: 3px;
+      background: var(--gold);
+      margin: 14px auto 0;
+      border-radius: 2px;
+    }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 680px;
+      margin: 40px auto 60px;
+      padding: 0 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 36px 40px;
+      box-shadow: 0 2px 12px rgba(31,56,100,0.07);
+    }
+
+    /* ── Section heading ── */
+    .section-label {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Form groups ── */
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+      letter-spacing: 0.01em;
+    }
+    label .req { color: var(--gold); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.97rem;
+      color: #2A2118;
+      background: var(--cream);
+      transition: border-color 0.18s, box-shadow 0.18s;
+      outline: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(31,56,100,0.10);
+      background: var(--white);
+    }
+    textarea { resize: vertical; }
+
+    .help-text {
+      font-size: 0.80rem;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* ── DOI/ISBN lookup row ── */
+    .lookup-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .lookup-row input { flex: 1; }
+    #lookup-btn {
+      flex-shrink: 0;
+      padding: 9px 16px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    #lookup-btn:hover { background: #162b52; }
+    #lookup-btn:disabled { background: #aaa; cursor: default; }
+
+    /* ── Lookup status ── */
+    #lookup-status {
+      font-size: 0.82rem;
+      margin-top: 5px;
+      min-height: 1.2em;
+      transition: color 0.2s;
+    }
+    #lookup-status.ok    { color: var(--ok); }
+    #lookup-status.error { color: var(--error); }
+    #lookup-status.info  { color: var(--muted); font-style: italic; }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ── Submit ── */
+    .submit-row { margin-top: 28px; }
+    #submit-btn {
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.18s, transform 0.1s;
+    }
+    #submit-btn:hover:not(:disabled) { background: #162b52; transform: translateY(-1px); }
+    #submit-btn:disabled { background: #aaa; cursor: default; transform: none; }
+
+    /* ── Success banner ── */
+    #success-msg {
+      display: none;
+      background: #EAF5EE;
+      color: var(--ok);
+      border: 1px solid #A8D5B5;
+      border-left: 4px solid var(--ok);
+      padding: 16px 20px;
+      border-radius: 4px;
+      margin-top: 24px;
+      font-weight: 600;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 0.80rem;
+      color: var(--muted);
+      padding: 0 20px 40px;
+    }
+    footer a { color: var(--navy); text-decoration: underline; }
+
+    @media (max-width: 500px) {
+      .card { padding: 24px 20px; }
+      .site-nav .brand { font-size: 0.82rem; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>Lending Request Form</h2>
-    <p>Please use this form to request a loan or scan from UPEI Library collections.</p>
-    
-    <form id="lending-form">
-        <!-- Bibliographic Info -->
-        <div class="form-group">
-            <label for="doi_isbn">DOI or ISBN (Auto-lookup)</label>
-            <input type="text" id="doi_isbn" placeholder="e.g., 978-0465050659">
+<!-- ── Navigation ── -->
+<nav class="site-nav">
+  <a class="brand" href="#">Robertson Library — ILL Services</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Borrowing Request</a></li>
+    <li><a href="lending-request.html" class="active">Lending Request</a></li>
+  </ul>
+</nav>
+
+<!-- ── Page header ── -->
+<header class="page-header">
+  <h1>Interlibrary Loan — Lending Request</h1>
+  <p>Request a loan or scan from UPEI Robertson Library collections.</p>
+  <div class="rule"></div>
+</header>
+
+<!-- ── Form ── -->
+<main>
+  <div class="card">
+    <p class="section-label">Step 1 — Find the Item</p>
+
+    <form id="lending-form" novalidate>
+
+      <div class="form-group">
+        <label for="doi_isbn">DOI, ISBN, or ISSN</label>
+        <div class="lookup-row">
+          <input type="text" id="doi_isbn" placeholder="e.g. 10.1038/s41591… or 978-0465050659 or 1234-5678" maxlength="120" autocomplete="off">
+          <button type="button" id="lookup-btn">Look up</button>
         </div>
+        <div id="lookup-status" class="info">Enter an identifier above and click <strong>Look up</strong> to auto-fill the details below.</div>
+      </div>
 
-        <div class="form-group">
-            <label for="title">Item Title *</label>
-            <input type="text" id="title" required>
-        </div>
+      <hr class="divider">
+      <p class="section-label">Step 2 — Item Details</p>
 
-        <div class="form-group">
-            <label for="author">Author/Editor *</label>
-            <input type="text" id="author" required>
-        </div>
+      <div class="form-group">
+        <label for="title">Item Title <span class="req">*</span></label>
+        <input type="text" id="title" required maxlength="500" placeholder="Full title of the work">
+      </div>
 
-        <div class="form-group">
-            <label for="call_number">UPEI Call Number (Optional)</label>
-            <input type="text" id="call_number" placeholder="e.g., LB 2395 .C12">
-        </div>
+      <div class="form-group">
+        <label for="author">Author / Editor <span class="req">*</span></label>
+        <input type="text" id="author" required maxlength="300" placeholder="Last, First; Last, First">
+      </div>
 
-        <hr>
+      <div class="form-group">
+        <label for="call_number">UPEI Call Number</label>
+        <input type="text" id="call_number" maxlength="80" placeholder="e.g. LB 2395 .C12">
+        <div class="help-text">Optional — include if known to help staff locate the item faster.</div>
+      </div>
 
-        <div class="form-group">
-            <label for="inst_name">Requesting Institution Name *</label>
-            <input type="text" id="inst_name" placeholder="e.g., Dalhousie University" required>
-        </div>
+      <hr class="divider">
+      <p class="section-label">Step 3 — Requesting Institution</p>
 
-        <div class="form-group">
-            <label for="inst_email">ILL Dept. Contact Email *</label>
-            <input type="email" id="inst_email" required>
-        </div>
+      <div class="form-group">
+        <label for="inst_name">Institution Name <span class="req">*</span></label>
+        <input type="text" id="inst_name" required maxlength="200" placeholder="e.g. Dalhousie University">
+      </div>
 
-        <div class="form-group">
-            <label for="shipping_address">Full Shipping Address *</label>
-            <textarea id="shipping_address" rows="3" placeholder="Include department, building, and postal code" required></textarea>
-        </div>
+      <div class="form-group">
+        <label for="inst_email">ILL Department Email <span class="req">*</span></label>
+        <input type="email" id="inst_email" required maxlength="200" placeholder="ill@yourinstitution.ca">
+      </div>
 
-        <div class="form-group">
-            <label for="notes">Special Instructions / OCLC Number</label>
-            <textarea id="notes" rows="2"></textarea>
-        </div>
+      <div class="form-group">
+        <label for="shipping_address">Full Shipping Address <span class="req">*</span></label>
+        <textarea id="shipping_address" rows="3" required maxlength="600" placeholder="Include department, building, street, city, and postal code"></textarea>
+      </div>
 
+      <div class="form-group">
+        <label for="notes">Special Instructions / OCLC Number</label>
+        <textarea id="notes" rows="2" maxlength="800" placeholder="OCLC number, loan period, scan request details, etc."></textarea>
+      </div>
+
+      <div class="submit-row">
         <button type="submit" id="submit-btn">Submit Lending Request</button>
+      </div>
     </form>
 
-    <div id="success-msg">Request submitted. The UPEI ILL team will process this shortly.</div>
-</div>
+    <div id="success-msg">✓ Request submitted. The UPEI ILL team will process this shortly.</div>
+  </div>
+</main>
+
+<footer>
+  <p>Robertson Library, University of Prince Edward Island &nbsp;·&nbsp; <a href="mailto:ill@upei.ca">ill@upei.ca</a></p>
+  <p style="margin-top:6px;">Looking to borrow from another library? Visit the <a href="index.html">Borrowing Request</a> form.</p>
+</footer>
 
 <script>
+// ─────────────────────────────────────────────────────────────
+//  SECURITY: sanitise any string before using it in the DOM
+//  or sending it to the webhook.
+// ─────────────────────────────────────────────────────────────
+function sanitise(str) {
+  if (typeof str !== 'string') return '';
+  const tmp = document.createElement('div');
+  tmp.textContent = str;
+  let clean = tmp.textContent;
+  clean = clean.replace(/<[^>]*>/g, '');
+  clean = clean.replace(/\s{3,}/g, '  ').trim();
+  return clean;
+}
 
-document.getElementById('doi_isbn').addEventListener('blur', async function() {
-  const val = this.value.trim();
-  if (!val) return;
-  if (val.startsWith('10.')) {
-    const url = `https://api.crossref.org/works/${encodeURIComponent(val)}`;
-    try {
-      const res  = await fetch(url, { headers: { 'User-Agent': 'UPEI-ILL/1.0 (ill@upei.ca)' } });
-      const data = await res.json();
-      document.getElementById('title').value  = data.message.title?.[0] ?? '';
-      document.getElementById('author').value = data.message.author?.map(a => `${a.family}, ${a.given}`).join('; ') ?? '';
-    } catch (e) { console.error(e); }
-  } else {
-    const isbn = val.replace(/[^0-9X]/gi, '');
-    const url  = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
-    try {
-      const res  = await fetch(url);
-      const data = await res.json();
-      const book = data[`ISBN:${isbn}`];
-      if (book) {
-        document.getElementById('title').value  = book.title ?? '';
-        document.getElementById('author').value = book.authors?.map(a => a.name).join('; ') ?? '';
-      }
-    } catch (e) { console.error(e); }
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  LOOKUP — DOI / ISBN / ISSN
+// ─────────────────────────────────────────────────────────────
+const statusEl = document.getElementById('lookup-status');
+
+function setStatus(msg, type) {
+  statusEl.textContent = msg;
+  statusEl.className = type;
+}
+
+function fillFields({ title, author }) {
+  if (title)  document.getElementById('title').value  = sanitise(title);
+  if (author) document.getElementById('author').value = sanitise(author);
+}
+
+function detectType(val) {
+  if (/^10\.\d{4,}/.test(val))          return 'doi';
+  if (/^\d{4}-\d{3}[\dX]$/i.test(val))  return 'issn';
+  const digits = val.replace(/[^0-9X]/gi, '');
+  if (digits.length === 10 || digits.length === 13) return 'isbn';
+  return null;
+}
+
+async function lookupDOI(doi) {
+  const url = `https://api.crossref.org/works/${encodeURIComponent(doi)}`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`Crossref returned ${res.status}`);
+  const { message: m } = await res.json();
+  const title  = m.title?.[0] ?? '';
+  const author = (m.author ?? []).map(a => [a.family, a.given].filter(Boolean).join(', ')).join('; ');
+  return { title, author };
+}
+
+async function lookupISSN(issn) {
+  const url = `https://api.crossref.org/journals/${encodeURIComponent(issn)}`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`Crossref ISSN lookup returned ${res.status}`);
+  const { message: m } = await res.json();
+  return { title: m.title ?? '', author: '' };
+}
+
+async function lookupISBN(val) {
+  const isbn = val.replace(/[^0-9X]/gi, '');
+  const url  = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`Open Library returned ${res.status}`);
+  const data = await res.json();
+  const book = data[`ISBN:${isbn}`];
+  if (!book) throw new Error('ISBN not found in Open Library');
+  const title  = book.title ?? '';
+  const author = (book.authors ?? []).map(a => a.name).join('; ');
+  return { title, author };
+}
+
+document.getElementById('lookup-btn').addEventListener('click', async function () {
+  const raw = document.getElementById('doi_isbn').value.trim();
+  if (!raw) { setStatus('Please enter a DOI, ISBN, or ISSN first.', 'error'); return; }
+
+  const type = detectType(raw);
+  if (!type) {
+    setStatus('Could not recognise that as a DOI (starts with 10.), ISBN (10 or 13 digits), or ISSN (####-####).', 'error');
+    return;
+  }
+
+  this.disabled = true;
+  this.textContent = 'Looking up…';
+  setStatus('Searching…', 'info');
+
+  try {
+    let result;
+    if (type === 'doi')  result = await lookupDOI(raw);
+    if (type === 'issn') result = await lookupISSN(raw);
+    if (type === 'isbn') result = await lookupISBN(raw);
+
+    fillFields(result);
+    if (result.title) {
+      setStatus('✓ Details filled in — please review and correct if needed.', 'ok');
+    } else {
+      setStatus('Record found but title was empty — please fill in manually.', 'error');
+    }
+  } catch (err) {
+    console.warn('Lookup error:', err);
+    setStatus(`Lookup failed: ${err.message}. Please fill in the fields manually.`, 'error');
+  } finally {
+    this.disabled = false;
+    this.textContent = 'Look up';
   }
 });
 
+document.getElementById('doi_isbn').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('lookup-btn').click(); }
+});
 
-document.getElementById('lending-form').addEventListener('submit', async function(e) {
+// ─────────────────────────────────────────────────────────────
+//  FORM SUBMIT
+// ─────────────────────────────────────────────────────────────
+document.getElementById('lending-form').addEventListener('submit', async function (e) {
   e.preventDefault();
-  
 
-  const WEBHOOK_URL = ''; 
+  const title          = sanitise(document.getElementById('title').value);
+  const author         = sanitise(document.getElementById('author').value);
+  const doi_isbn       = sanitise(document.getElementById('doi_isbn').value);
+  const callNumber     = sanitise(document.getElementById('call_number').value);
+  const instName       = sanitise(document.getElementById('inst_name').value);
+  const instEmail      = sanitise(document.getElementById('inst_email').value);
+  const shippingAddr   = sanitise(document.getElementById('shipping_address').value);
+  const notes          = sanitise(document.getElementById('notes').value);
+
+  const errors = [];
+  if (!title)        errors.push('Item title is required.');
+  if (!author)       errors.push('Author / Editor is required.');
+  if (!instName)     errors.push('Institution name is required.');
+  if (!instEmail)    errors.push('ILL department email is required.');
+  if (instEmail && !isValidEmail(instEmail)) errors.push('Please enter a valid email address.');
+  if (!shippingAddr) errors.push('Shipping address is required.');
+
+  if (errors.length) {
+    alert('Please fix the following:\n\n• ' + errors.join('\n• '));
+    return;
+  }
 
   const payload = {
-    title:         document.getElementById('title').value.trim(),
-    author:        document.getElementById('author').value.trim(),
-    callNumber:    document.getElementById('call_number').value.trim(),
-    instName:      document.getElementById('inst_name').value.trim(),
-    instEmail:     document.getElementById('inst_email').value.trim(),
-    shippingAddr:  document.getElementById('shipping_address').value.trim(),
-    notes:         document.getElementById('notes').value.trim()
+    title,
+    author,
+    doi_isbn,
+    callNumber,
+    instName,
+    instEmail,
+    shippingAddr,
+    notes,
+    submittedAt: new Date().toISOString(),
   };
+
+  const WEBHOOK_URL = '';
+
+  if (WEBHOOK_URL === '') {
+    console.log('DEV — payload that would be sent:', payload);
+    document.getElementById('success-msg').style.display = 'block';
+    this.reset();
+    setStatus('Enter an identifier above and click Look up to auto-fill the details below.', 'info');
+    return;
+  }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  btn.textContent = 'Submitting…';
 
   try {
     const res = await fetch(WEBHOOK_URL, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body:    JSON.stringify(payload),
     });
     if (res.ok) {
       document.getElementById('success-msg').style.display = 'block';
       this.reset();
-    } else { alert('Submission failed. Check Webhook URL.'); }
-  } catch (err) { alert('Network error.'); }
-  finally {
+      setStatus('Enter an identifier above and click Look up to auto-fill the details below.', 'info');
+    } else {
+      alert('Submission failed (HTTP ' + res.status + '). Please check the Webhook URL or contact ILL staff.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Network error. Please check your connection and try again.');
+  } finally {
     btn.disabled = false;
     btn.textContent = 'Submit Lending Request';
   }
