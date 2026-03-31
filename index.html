@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interlibrary Loan Request</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .form-container { background: #fff; padding: 30px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type="text"], input[type="email"], input[type="number"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .help-text { font-size: 0.85em; color: #666; }
+        button { background-color: #1F3864; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:disabled { background-color: #999; }
+        #success-msg { display: none; background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Interlibrary Loan Request</h2>
+    <p>Enter a DOI or ISBN first to automatically fill in the item details.</p>
+    
+    <form id="ill-form">
+        <div class="form-group">
+            <label for="doi_isbn">DOI or ISBN</label>
+            <input type="text" id="doi_isbn" placeholder="e.g., 10.1038/s41591... or 978-0465050659">
+            <div class="help-text">Clicking outside this box will auto-search Crossref/Open Library.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input type="text" id="title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="author">Author *</label>
+            <input type="text" id="author" required>
+        </div>
+
+        <div class="form-group">
+            <label for="year">Publication Year</label>
+            <input type="number" id="year">
+        </div>
+
+        <div class="form-group">
+            <label>Format Required *</label>
+            <label style="font-weight: normal;"><input type="radio" name="format" value="Physical" required> Physical Book</label>
+            <label style="font-weight: normal;"><input type="radio" name="format" value="Electronic" required> Electronic / PDF Chapter</label>
+        </div>
+
+        <hr style="margin: 20px 0; border: 0.5px solid #eee;">
+
+        <div class="form-group">
+            <label for="patron_name">Your Name *</label>
+            <input type="text" id="patron_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="patron_email">Your Email *</label>
+            <input type="email" id="patron_email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="patron_barcode">Library Barcode</label>
+            <input type="text" id="patron_barcode">
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes to ILL Staff</label>
+            <textarea id="notes" rows="3"></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn">Submit Request</button>
+    </form>
+
+    <div id="success-msg">Your request has been submitted successfully!</div>
+</div>
+
+<script>
+
+document.getElementById('doi_isbn').addEventListener('blur', async function() {
+  const val = this.value.trim();
+  if (!val) return;
+
+
+  if (val.startsWith('10.')) {
+    const url = `https://api.crossref.org/works/${encodeURIComponent(val)}`;
+    try {
+      const res  = await fetch(url, { headers: { 'User-Agent': 'ILL-System/1.0 (ill-admin@yourlibrary.ca)' } });
+      const data = await res.json();
+      const msg  = data.message;
+      document.getElementById('title').value  = msg.title?.[0] ?? '';
+      document.getElementById('author').value = msg.author?.map(a => `${a.family}, ${a.given}`).join('; ') ?? '';
+      document.getElementById('year').value   = msg.published?.['date-parts']?.[0]?.[0] ?? '';
+    } catch (e) { console.warn('Crossref lookup failed:', e); }
+
+
+  } else {
+    const isbn = val.replace(/[^0-9X]/gi, '');
+    const url  = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+      const book = data[`ISBN:${isbn}`];
+      if (book) {
+        document.getElementById('title').value  = book.title ?? '';
+        document.getElementById('author').value = book.authors?.map(a => a.name).join('; ') ?? '';
+        document.getElementById('year').value   = book.publish_date ?? '';
+      }
+    } catch (e) { console.warn('Open Library lookup failed:', e); }
+  }
+});
+
+
+document.getElementById('ill-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+
+  const WEBHOOK_URL = 'PASTE_YOUR_POWER_AUTOMATE_URL_HERE'; 
+
+  const payload = {
+    title:         document.getElementById('title').value.trim(),
+    author:        document.getElementById('author').value.trim(),
+    year:          parseInt(document.getElementById('year').value) || null,
+    doi_isbn:      document.getElementById('doi_isbn').value.trim(),
+    format:        document.querySelector('input[name=format]:checked')?.value,
+    patronName:    document.getElementById('patron_name').value.trim(),
+    patronEmail:   document.getElementById('patron_email').value.trim(),
+    patronBarcode: document.getElementById('patron_barcode').value.trim(),
+    notes:         document.getElementById('notes').value.trim(),
+    submittedAt:   new Date().toISOString(),
+  };
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      document.getElementById('success-msg').style.display = 'block';
+      this.reset();
+    } else {
+      alert('Submission failed. Please ensure the Webhook URL is correct.');
+    }
+  } catch (err) {
+    alert('Network error. Check connection or CORS settings.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit Request';
+  }
+});
+</script>
+</body>
+</html>
