@@ -280,9 +280,9 @@
     <form id="lending-form" novalidate>
 
       <div class="form-group">
-        <label for="doi_isbn">DOI, ISBN, or ISSN</label>
+        <label for="doi">DOI, ISBN, or ISSN</label>
         <div class="lookup-row">
-          <input type="text" id="doi_isbn" placeholder="e.g. 10.1038/s41591… or 978-0465050659 or 1234-5678" maxlength="120" autocomplete="off">
+          <input type="text" id="doi" placeholder="e.g. 10.1038/s41591… or 978-0465050659 or 1234-5678" maxlength="120" autocomplete="off">
           <button type="button" id="lookup-btn">Look up</button>
         </div>
         <div id="lookup-status" class="info">Enter an identifier above and click <strong>Look up</strong> to auto-fill the details below.</div>
@@ -417,7 +417,7 @@ async function lookupISBN(val) {
 }
 
 document.getElementById('lookup-btn').addEventListener('click', async function () {
-  const raw = document.getElementById('doi_isbn').value.trim();
+  const raw = document.getElementById('doi').value.trim();
   if (!raw) { setStatus('Please enter a DOI, ISBN, or ISSN first.', 'error'); return; }
 
   const type = detectType(raw);
@@ -451,7 +451,7 @@ document.getElementById('lookup-btn').addEventListener('click', async function (
   }
 });
 
-document.getElementById('doi_isbn').addEventListener('keydown', function (e) {
+document.getElementById('doi').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') { e.preventDefault(); document.getElementById('lookup-btn').click(); }
 });
 
@@ -463,7 +463,7 @@ document.getElementById('lending-form').addEventListener('submit', async functio
 
   const title          = sanitise(document.getElementById('title').value);
   const author         = sanitise(document.getElementById('author').value);
-  const doi_isbn       = sanitise(document.getElementById('doi_isbn').value);
+  const doi       = sanitise(document.getElementById('doi').value);
   const callNumber     = sanitise(document.getElementById('call_number').value);
   const instName       = sanitise(document.getElementById('inst_name').value);
   const instEmail      = sanitise(document.getElementById('inst_email').value);
@@ -486,7 +486,7 @@ document.getElementById('lending-form').addEventListener('submit', async functio
   const payload = {
     title,
     author,
-    doi_isbn,
+    doi,
     callNumber,
     instName,
     instEmail,
