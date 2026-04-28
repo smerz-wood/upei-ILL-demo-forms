@@ -251,14 +251,24 @@
     <form id="ill-form" novalidate>
 
       <div class="form-group">
-        <label for="doi_isbn">DOI, ISBN, or ISSN</label>
+        <label for="doi">DOI</label>
         <div class="lookup-row">
-          <input type="text" id="doi_isbn"
+          <input type="text" id="doi"
             placeholder="e.g. 10.1038/s41591-019 or 978-0465050659 or 1234-567X"
             maxlength="120" autocomplete="off">
           <button type="button" id="lookup-btn">Look up</button>
         </div>
         <div id="lookup-status" class="info">Enter an identifier and click Look up to auto-fill the fields below.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="isbn">ISBN</label>
+        <input type="text" id="isbn" maxlength="16" placeholder="9789992122">
+      </div>
+
+      <div class="form-group">
+        <label for="issn">ISSN</label>
+        <input type="text" id="issn" maxlength="16" placeholder="9789992122">
       </div>
 
       <hr class="divider">
@@ -412,7 +422,7 @@
 
   /* ─── Lookup button handler ────────────────────────────── */
   document.getElementById('lookup-btn').addEventListener('click', async function () {
-    var raw = document.getElementById('doi_isbn').value.trim();
+    var raw = document.getElementById('doi').value.trim();
     if (!raw) { setStatus('Please enter a DOI, ISBN, or ISSN first.', 'err'); return; }
 
     var type = detectType(raw);
@@ -448,7 +458,7 @@
   });
 
   /* Enter in the identifier field triggers lookup */
-  document.getElementById('doi_isbn').addEventListener('keydown', function (e) {
+  document.getElementById('doi').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); document.getElementById('lookup-btn').click(); }
   });
 
@@ -491,7 +501,9 @@
     var author        = sanitise(document.getElementById('author').value);
     var yearRaw       = document.getElementById('year').value.trim();
     var year          = yearRaw ? parseInt(yearRaw, 10) : null;
-    var doi_isbn      = sanitise(document.getElementById('doi_isbn').value);
+    var doi      = sanitise(document.getElementById('doi').value);
+    var issn      = sanitise(document.getElementById('issn').value);
+    var isbn      = sanitise(document.getElementById('isbn').value);
     var formatEl      = document.querySelector('input[name="format"]:checked');
     var patronName    = sanitise(document.getElementById('patron_name').value);
     var patronEmail   = sanitise(document.getElementById('patron_email').value);
@@ -532,7 +544,9 @@
       title:         title,
       author:        author,
       year:          year,
-      doi_isbn:      doi_isbn,
+      doi:           doi,
+      isbn:          isbn,
+      issn:          issn,
       format:        formatEl.value,
       patronName:    patronName,
       patronEmail:   patronEmail,
